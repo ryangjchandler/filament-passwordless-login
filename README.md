@@ -38,6 +38,17 @@ public function panel(Panel $panel): Panel
 
 This will automatically register the new login page, overwriting the one provided by Filament. It also registers the necessary routes to authenticate users using a magic login link.
 
+### Using password in local environments
+
+Sending login links emails during development can be difficult. If you are still storing passwords for your users, you can enable password authentication in `local` environments.
+
+```php
+PasswordlessLoginPlugin::make()
+    ->allowPasswordInLocalEnvironment()
+```
+
+Now a "Password" field will be displayed on the Login page when `APP_ENV=local`.
+
 ### Action
 
 This package also provides an `Action` that can be used inside of Filament tables.

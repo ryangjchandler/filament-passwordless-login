@@ -6,13 +6,28 @@ use C6Digital\PasswordlessLogin\Http\Controllers\LoginLinkController;
 use C6Digital\PasswordlessLogin\Pages\Login;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
 class PasswordlessLoginPlugin implements Plugin
 {
+    protected bool $allowPasswordInLocalEnvironment = false;
+
     public function getId(): string
     {
         return 'filament-passwordless-login';
+    }
+
+    public function allowPasswordInLocalEnvironment(bool $allowPasswordInLocalEnvironment = true): static
+    {
+        $this->allowPasswordInLocalEnvironment = $allowPasswordInLocalEnvironment;
+
+        return $this;
+    }
+
+    public function allowsPasswordInLocalEnvironment(): bool
+    {
+        return $this->allowPasswordInLocalEnvironment && App::isLocal();
     }
 
     public function register(Panel $panel): void
