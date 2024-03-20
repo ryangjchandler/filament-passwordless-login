@@ -5,6 +5,8 @@ namespace C6Digital\PasswordlessLogin\Pages;
 use App\Models\User;
 use C6Digital\PasswordlessLogin\Mail\LoginLink;
 use C6Digital\PasswordlessLogin\PasswordlessLoginPlugin;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Component;
@@ -12,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Illuminate\Support\Facades\Mail;
@@ -21,6 +24,7 @@ use Illuminate\Validation\ValidationException;
 class Login extends SimplePage
 {
     use InteractsWithFormActions;
+    use WithRateLimiting;
 
     protected static string $view = 'filament-passwordless-login::pages.login';
 
@@ -41,6 +45,24 @@ class Login extends SimplePage
 
     public function authenticate()
     {
+        try {
+            $this->rateLimit(5);
+        } catch (TooManyRequestsException $e) {
+            Notification::make()
+                ->title(__('filament-panels::pages/auth/login.notifications.throttled.title', [
+                    'seconds' => $e->secondsUntilAvailable,
+                    'minutes' => ceil($e->secondsUntilAvailable / 60),
+                ]))
+                ->body(array_key_exists('body', __('filament-panels::pages/auth/login.notifications.throttled') ?: []) ? __('filament-panels::pages/auth/login.notifications.throttled.body', [
+                    'seconds' => $e->secondsUntilAvailable,
+                    'minutes' => ceil($e->secondsUntilAvailable / 60),
+                ]) : null)
+                ->danger()
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         if (PasswordlessLoginPlugin::get()->allowsPasswordInLocalEnvironment() && ! blank($data['password'])) {
