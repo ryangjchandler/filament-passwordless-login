@@ -43,7 +43,7 @@ class Login extends SimplePage
     {
         $data = $this->form->getState();
 
-        if (PasswordlessLoginPlugin::get()->allowsPasswordInLocalEnvironment() && !blank($data['password'])) {
+        if (PasswordlessLoginPlugin::get()->allowsPasswordInLocalEnvironment() && ! blank($data['password'])) {
             return $this->authenticateWithPassword($data);
         }
 
@@ -74,7 +74,7 @@ class Login extends SimplePage
 
         if (
             ($user instanceof FilamentUser) &&
-            (!$user->canAccessPanel(Filament::getCurrentPanel()))
+            (! $user->canAccessPanel(Filament::getCurrentPanel()))
         ) {
             Filament::auth()->logout();
 
