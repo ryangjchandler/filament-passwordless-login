@@ -28,6 +28,8 @@ class PasswordlessLoginServiceProvider extends PackageServiceProvider
             $package->hasTranslations();
         }
 
+        $package->hasConfigFile();
+
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(static::$viewNamespace);
         }
