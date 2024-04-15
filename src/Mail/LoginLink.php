@@ -23,7 +23,7 @@ class LoginLink extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Your Login Link',
+            subject: __('filament-passwordless-login::passwordless-login.mail_subject'),
         );
     }
 
